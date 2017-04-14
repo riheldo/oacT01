@@ -1,6 +1,6 @@
 .data
 
-image_name:		.asciiz "lenaeye.raw" 
+image_name:		.asciiz "P:\Pedro\Dropbox\Arquivos\UNB\OAC\trabalho1\lenaeye.raw" 
 address:		.word 0x10040000
 buffer:			.word 0
 size:			.word 4096
@@ -112,7 +112,8 @@ draw_point_menu:
 	move $t4, $v0			#guarda o B inserido pelo usuario em t4
 	
 	li $t5, 63			#carrega 63 no t5 para inverter o x
-	sub $t0, $t0, $t5		#inverte o x para que ele inicie na base da tela
+	sub $t0, $t5, $t0		#inverte o x para que ele inicie na base da tela
+	li $a0, 0			#limpa o a0
 	move $a0, $t2			#carrega o R em a0
 	sll $a0, $a0, 8			#desloca o R para a esquerda para carrega o G
 	add $a0, $a0, $t3		#carrega o G em a0
@@ -122,6 +123,7 @@ draw_point_menu:
 	move $a2, $t1			#mvoe o Y para a2
 	jal draw_point
 	j menu
+	
 	
 	
 	
