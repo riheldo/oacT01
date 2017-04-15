@@ -86,7 +86,7 @@ menu:
 	beq $t0, $t1, get_point_menu		#compara os valores com a escolha do ususario e pula para a funcao adequada
 	beq $t0, $t2, draw_point_menu		#  ||
 	beq $t0, $t3, draw_empty_rectangle_menu	#  ||		
-	beq $t0, $t4, quit 			#  ||
+	beq $t0, $t4, convert_negative 			#  ||
 	beq $t0, $t5, load_image		#  ||
 	beq $t0, $t6, quit			#  --
 	j menu
@@ -143,7 +143,7 @@ get_point:
 	add $t5, $t4, $0		#carrega a cor composta em t5
 	add $t6, $t4, $0		#carrega a cor composta em t6
 	add $t7, $t4, $0		#carrega a cor composta em t7
-	sll $t5, $t5, 24		#desloca o numero de cor composta para apagar tudo que não for azul
+	sll $t5, $t5, 24		#desloca o numero de cor composta para apagar tudo que nï¿½o for azul
 	srl $s1, $t5, 24		#desloca o resultado para a posicao correta - a1 fica somente com o componente azul
 	sll $t6, $t6, 16		#desloca o numero de cor composta para apagar a componente azul
 	srl $s2, $t6, 24		#desloca o numero de cor composta para apagar a componente vermelho - a2 fica somente verde
@@ -328,13 +328,13 @@ load_image:
 	move $t9, $a2
 	
   	li   $v0, 13       # system call para abertura de arquivo
-  	li   $a1, 0        # Abre arquivo para leitura (parâmtros são 0: leitura, 1: escrita)
-  	li   $a2, 0        # modo é ignorado
-  	syscall            # abre um arquivo (descritor do arquivo é retornado em $v0)
+  	li   $a1, 0        # Abre arquivo para leitura (parï¿½mtros sï¿½o 0: leitura, 1: escrita)
+  	li   $a2, 0        # modo ï¿½ ignorado
+  	syscall            # abre um arquivo (descritor do arquivo ï¿½ retornado em $v0)
   	move $t6, $v0      # salva o descritor do arquivo
   
   	move $a0, $t6      # descritor do arquivo 
-  	move $a1, $t9      # endereço do buffer 
+  	move $a1, $t9      # endereï¿½o do buffer 
   	li   $a2, 3        # largura do buffer
 
 loop_load_image:  
@@ -342,10 +342,10 @@ loop_load_image:
   	beq  $a3, $zero, close_load_image
   
   	li   $v0, 14       # system call para leitura de arquivo
-  	syscall            # lê o arquivo
-  	lw   $t0, 0($a1)   # lê pixel do buffer	
+  	syscall            # lï¿½ o arquivo
+  	lw   $t0, 0($a1)   # lï¿½ pixel do buffer	
   	sw   $t0, 0($t8)   # escreve pixel no display
-  	addi $t8, $t8, 4   # próximo pixel
+  	addi $t8, $t8, 4   # prï¿½ximo pixel
   	addi $a3, $a3, -1  # decrementa countador
   
 	j loop_load_image
@@ -355,6 +355,64 @@ close_load_image:
   	move $a0, $t6      # descritor do arquivo a ser fechado
   	syscall            # fecha arquivo
   	j menu
+
+
+
+
+# Converte imagem para negativo
+convert_negative:
+	
+	li $t0, 63 # inicio contador do primeiro loop
+	cn_loop_1:
+		beq $t0, $zero, end_loops # condicao de parada do indice i
+		
+		move $t2, $t0 # guarda o valor atual do index i
+		sub $t0, $t0, 1 # subtrai o valor de index i
+		
+		li $t1, 63 # inicio contador do segundo loop
+		cn_loop_2:
+			beq $t1, $zero, cn_loop_1 # condicao de parada do indice j
+			
+			move $t3, $t1 # guarda o valor atual do indice j
+			sub $t1, $t1, 1 # subtrai o valor do indice j
+
+			# seta os parametros da funcao
+			move $a1, $t2 # $a1 Ã© o parametro de x
+			move $a2, $t3 # $a2 Ã© o parametro de y
+			jal get_point # chama funcao
+			# receber os valores de RGB
+			move $t4, $s3 # R: VERMELHO
+			move $t5, $s2 # G: VERDE
+			move $t6, $s1 # B: AZUL
+
+			# inverter cores
+			li $t7, 255 # cor  fixa 255
+			sub $t4, $t7, $t4 # INVERTER A COR DO VERMELHO
+			sub $t5, $t7, $t5 # INVERTER A COR DO VERDE
+			sub $t6, $t7, $t6 # INVERTER A COR DO AZUL
+
+			# Criar registro de cor
+			li $a0, 0				#limpa o a0
+			move $a0, $t4			#carrega o R em a0
+			sll $a0, $a0, 8			#desloca o R para a esquerda para carrega o G
+			add $a0, $a0, $t5		#carrega o G em a0
+			sll $a0, $a0, 8			#desloca o R e o G para a esquerda para carregar o B
+			add $a0, $a0, $t6		#carrega o B em a0
+
+			#recebe o parametro a1 (posicao_x), a2 (posicao_y)
+			li $t8, 63 #carrega 63 para inverter o x
+			sub $t9, $t8, $t2
+			move $a1, $t9 # $a1 Ã© o parametro de x
+			move $a2, $t3 # $a2 Ã© o parametro de y
+
+			jal draw_point
+
+			j cn_loop_2
+	
+	end_loops:
+	j menu
+
+
 
 
 quit:
