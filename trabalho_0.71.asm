@@ -362,23 +362,21 @@ close_load_image:
 # Converte imagem para negativo
 convert_negative:
 	
-	li $t0, 63 # inicio contador do primeiro loop
+	li $s4, 64 # inicio contador do primeiro loop
 	cn_loop_1:
-		beq $t0, $zero, end_loops # condicao de parada do indice i
+		beq $s4, $zero, end_loops # condicao de parada do indice i
 		
-		move $t2, $t0 # guarda o valor atual do index i
-		sub $t0, $t0, 1 # subtrai o valor de index i
+		sub $s4, $s4, 1 # subtrai o valor de index i
 		
-		li $t1, 63 # inicio contador do segundo loop
+		li $s5, 64 # inicio contador do segundo loop
 		cn_loop_2:
-			beq $t1, $zero, cn_loop_1 # condicao de parada do indice j
+			beq $s5, $zero, cn_loop_1 # condicao de parada do indice j
 			
-			move $t3, $t1 # guarda o valor atual do indice j
-			sub $t1, $t1, 1 # subtrai o valor do indice j
+			sub $s5, $s5, 1 # subtrai o valor do indice j
 
 			# seta os parametros da funcao
-			move $a1, $t2 # $a1 é o parametro de x
-			move $a2, $t3 # $a2 é o parametro de y
+			move $a1, $s4 # $a1 é o parametro de x
+			move $a2, $s5 # $a2 é o parametro de y
 			jal get_point # chama funcao
 			# receber os valores de RGB
 			move $t4, $s3 # R: VERMELHO
@@ -401,9 +399,9 @@ convert_negative:
 
 			#recebe o parametro a1 (posicao_x), a2 (posicao_y)
 			li $t8, 63 #carrega 63 para inverter o x
-			sub $t9, $t8, $t2
+			sub $t9, $t8, $s4
 			move $a1, $t9 # $a1 é o parametro de x
-			move $a2, $t3 # $a2 é o parametro de y
+			move $a2, $s5 # $a2 é o parametro de y
 
 			jal draw_point
 
